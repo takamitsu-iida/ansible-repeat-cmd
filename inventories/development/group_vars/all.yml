@@ -1,0 +1,10 @@
+---
+#
+# 全機器に対する設定
+#
+
+# 踏み台経由で実行する場合のSSH設定
+# 実行する端末の場所によって踏み台が必要かどうか異なるので、環境変数から読み取る
+# 踏み台(10.35.158.20)には鍵認証でログインできるようにしておくこと
+# ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q admin@10.35.158.20"'
+ansible_ssh_common_args: "{{ lookup('env','ansible_ssh_common_args') }}"

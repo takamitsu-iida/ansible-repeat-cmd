@@ -1,0 +1,69 @@
+---
+#
+# Ciscoルータにコマンドを打ち込みます
+#
+# 2018/07/10 初版
+#
+# Takamitsu IIDA (@takamitsu-iida)
+
+- name: execute command on cisco devices
+  hosts: 11f_routers
+  gather_facts: False
+
+  # 同時実行数
+  serial: 100
+
+  vars:
+    #  - include: vars/exec_commands.yml
+    exec_commands:
+      - "show process cpu | in CPU"
+      - "ping 172.18.0.1"
+
+  tasks:
+    - name: run exec commands on remote nodes
+      repeat_ios_cmd:
+        commands: "{{ exec_commands }}"
+        sleep: 1
+        repeat: 10
+        store_stdout: false
+        logdir: ./log
+        logfile: "{{ inventory_hostname }}.log"
+      register: r
+      # 注意！
+      # 非同期にした場合、ctrl-cでプレイブックを止めるとタスクがバックグランドで走りっぱなしになってしまう
+      # ctrl-cで処理を強制終了したいなら非同期にはしないこと
+      async: 43200  # 60min*60sec*12 = 12 hour
+      poll: 0
+
+    #
+    # 非同期で実行した場合、中断するかどうかをユーザに問い合わせる
+    #
+    - name: user input
+      local_action:
+        module: pause
+        prompt: "yで処理を中止し、それ以外は終わるまでポーリングします"
+      register: yn
+
+    - name: check async status
+      async_status:
+        jid: "{{ r.ansible_job_id }}"
+      register: job_status
+
+    - name: stop if user input
+      fail:
+        msg: "ユーザ入力により中断しました。failedと表示されますがエラーではありません。"
+      #failed_when: False
+      when:
+        - yn.user_input == 'y'
+        - job_status.finished != true
+      run_once: true
+
+    - name: wait for end of async job
+      async_status:
+        jid: "{{ r.ansible_job_id }}"
+      register: job_status
+      until: job_status.finished
+      retries: 43200  # 60min*60sec*12 = 12 hour
+
+    - debug:
+        var: job_status

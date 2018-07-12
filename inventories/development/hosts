@@ -1,0 +1,61 @@
+#
+# all指定は踏み台も含まれてしまうので、使わないこと
+#
+[all]
+[all:vars]
+
+#
+# すべてのネットワーク機器を指定するときはdeivcesを指定する
+#
+[devices]
+
+[devices:children]
+routers
+switches
+
+#
+# ルータ
+#
+[routers]
+
+[routers:children]
+11f_routers
+18f_routers
+
+[11f_routers]
+# ログイン関連情報はgroup_varsに設定し、ここには記述しない
+r1 ansible_host=172.20.0.21
+r2 ansible_host=172.20.0.22
+r3 ansible_host=172.20.0.23
+r4 ansible_host=172.20.0.24
+
+[18f_routers]
+# ログイン関連情報はgroup_varsに設定し、ここには記述しない
+r12 ansible_host=172.18.0.12
+r13 ansible_host=172.18.0.13
+
+#
+# スイッチ
+#
+[switches]
+
+[switches:children]
+srs_switches
+
+[srs_switches]
+s1 ansible_host=192.168.1.200
+
+
+#
+# 踏み台
+#
+[bastion]
+# 踏み台
+# 鍵認証でSSH接続できるか確認するためのものなので、特に書かなくてもよい
+# ansible pg04 -m ping
+# に応答があればOK
+pg04 ansible_host=10.35.158.20 ansible_user=admin
+
+[bastion:vars]
+# /usr/bin/pythonがインストールされていないLinuxでansibleを実行する場合は必須
+ansible_python_interpreter = /usr/bin/python3
