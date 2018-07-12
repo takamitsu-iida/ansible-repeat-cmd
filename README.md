@@ -24,11 +24,17 @@ show process cpu | include CPU
 
 実際にモジュールを作ってやってみた結果。
 
+![repeat_ios_cmd](https://user-images.githubusercontent.com/21165341/42610833-47a99d10-85ce-11e8-8ce6-04f3ecca05b3.gif)
+
+
+<br>
 
 # モジュール
 
 ./libraryにモジュールを配置します。
 
+
+<br>
 
 # 使い方
 
