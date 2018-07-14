@@ -41,7 +41,7 @@
     - name: user input
       local_action:
         module: pause
-        prompt: "yで処理を中止し、それ以外は終わるまでポーリングします"
+        prompt: "リターンで処理を中止。cを入力した場合は終わるまでポーリングします"
       register: yn
 
     - name: check async status
@@ -53,7 +53,7 @@
       fail:
         msg: "ユーザ入力により中断しました。failedと表示されますがエラーではありません。"
       when:
-        - yn.user_input == 'y'
+        - yn.user_input != 'c'
         - job_status.finished != true
       run_once: true
 
