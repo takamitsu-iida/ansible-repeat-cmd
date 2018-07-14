@@ -52,7 +52,6 @@
     - name: stop if user input
       fail:
         msg: "ユーザ入力により中断しました。failedと表示されますがエラーではありません。"
-      #failed_when: False
       when:
         - yn.user_input == 'y'
         - job_status.finished != true
